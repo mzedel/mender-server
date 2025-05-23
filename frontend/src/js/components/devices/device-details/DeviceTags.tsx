@@ -11,7 +11,7 @@
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { Button, Typography } from '@mui/material';
@@ -21,7 +21,6 @@ import { EditButton } from '@northern.tech/common-ui/Confirm';
 import KeyValueEditor from '@northern.tech/common-ui/forms/KeyValueEditor';
 import { HELPTOOLTIPS, MenderHelpTooltip } from '@northern.tech/helptips/HelpTooltips';
 import { getDeviceAttributes, setDeviceTags } from '@northern.tech/store/thunks';
-import { toggle } from '@northern.tech/utils/helpers';
 
 import Tracking from '../../../tracking';
 import DeviceDataCollapse from './DeviceDataCollapse';
@@ -38,15 +37,10 @@ export const DeviceTags = ({ device, setSnackbar, userCapabilities }) => {
   const [editableTags, setEditableTags] = useState();
   const [isEditDisabled, setIsEditDisabled] = useState(!canWriteDevices);
   const [isEditing, setIsEditing] = useState(false);
-  const [shouldUpdateEditor, setShouldUpdateEditor] = useState(false);
   const dispatch = useDispatch();
 
   const { tags = {} } = device;
   const hasTags = !!Object.keys(tags).length;
-
-  useEffect(() => {
-    setShouldUpdateEditor(toggle);
-  }, [isEditing]);
 
   const onCancel = () => {
     setIsEditing(false);
@@ -92,8 +86,7 @@ export const DeviceTags = ({ device, setSnackbar, userCapabilities }) => {
               errortext=""
               initialInput={editableTags}
               inputHelpTipsMap={configHelpTipsMap}
-              onInputUpdate={setChangedTags}
-              reset={shouldUpdateEditor}
+              onInputChange={setChangedTags}
             />
             <div className="flexbox center-aligned margin-bottom-small" style={{ justifyContent: 'flex-end' }}>
               <Button className="margin-right-small" disabled={!isFullyDefined} color="primary" onClick={onSubmit} variant="contained">
