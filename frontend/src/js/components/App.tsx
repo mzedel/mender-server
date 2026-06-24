@@ -23,6 +23,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { makeStyles } from 'tss-react/mui';
 
+import Loader from '@northern.tech/common-ui/Loader';
 import SharedSnackbar from '@northern.tech/common-ui/SharedSnackbar';
 import storeActions from '@northern.tech/store/actions';
 import type { SentryConfig } from '@northern.tech/store/appSlice';
@@ -32,6 +33,7 @@ import {
   getCommit,
   getCurrentSession,
   getCurrentUser,
+  getFeatures,
   getIsServiceProvider,
   getOrganization,
   getSentryConfig,
@@ -151,6 +153,7 @@ export const AppRoot = () => {
   const { token: storedToken } = getSessionInfo();
   const { expiresAt, token = storedToken } = useSelector(getCurrentSession);
   const { id: tenantId } = useSelector(getOrganization);
+  const { hasMultitenancy, isHosted, isEnterprise } = useSelector(getFeatures);
 
   const trackLocationChange = useCallback(pathname => {
     let page = pathname;
@@ -239,6 +242,8 @@ export const AppRoot = () => {
 
   const dispatchedSetSnackbar = useCallback(message => dispatch(setSnackbar(message)), [dispatch]);
   const isSP = useSelector(getIsServiceProvider);
+  const needsOrgData = hasMultitenancy || isHosted || isEnterprise;
+  const orgDataLoaded = !!tenantId;
 
   return (
     <ThemeProvider theme={theme}>
@@ -252,7 +257,7 @@ export const AppRoot = () => {
             <div className="rightFluid container">
               <ErrorBoundary>
                 <SearchResult onOpenSearchResult={onOpenSearchResult} onCloseSearchResult={onCloseSearchResult} open={showSearchResult} />
-                {isSP ? <PrivateSPRoutes /> : <PrivateRoutes />}
+                {needsOrgData && !orgDataLoaded ? <Loader show /> : isSP ? <PrivateSPRoutes /> : <PrivateRoutes />}
               </ErrorBoundary>
             </div>
             {showDismissHelptipsDialog && <ConfirmDismissHelptips />}
